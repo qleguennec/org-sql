@@ -1,0 +1,43 @@
+#+OPTIONS: ^:nil
+
+* Configuration
+#+NAME: init
+#+BEGIN_SRC jupyter-python
+  if 'init' not in locals():
+      init = False
+
+  if not init:
+      %reload_ext sql
+      %config SqlMagic.autopandas = True
+      %sql postgresql://admin:admin@localhost/dvdrental
+      init = True
+#+END_SRC
+
+#+NAME: config-format
+#+BEGIN_SRC jupyter-python
+  import IPython
+  from tabulate import tabulate
+
+  class OrgFormatter(IPython.core.formatters.BaseFormatter):
+      def __call__(self, obj):
+          try:
+              return tabulate(obj, headers='keys',
+                              tablefmt='orgtbl', showindex='always')
+          except:
+              return None
+
+  ip = get_ipython()
+  ip.display_formatter.formatters['text/org'] = OrgFormatter()
+#+END_SRC
+
+* Example request
+#+BEGIN_SRC jupyter-python :display org
+  result = %sql select * from actor
+  dataframe = result.head(10)
+  dataframe
+#+END_SRC
+
+* Local variables
+# Local variables:
+# eval: (progn (org-sbe init) (org-sbe config-format))
+# End:
