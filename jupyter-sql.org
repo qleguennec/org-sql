@@ -37,7 +37,7 @@
   dataframe
 #+END_SRC
 
-* Local variables
+* COMMENT Local variables
 # Local variables:
 # eval: (progn (org-sbe init) (org-sbe config-format))
 # End:
