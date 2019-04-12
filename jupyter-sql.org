@@ -16,13 +16,15 @@
 #+NAME: config-format
 #+BEGIN_SRC jupyter-python
   import IPython
+  import pandas as pd
+  import numpy as np
   from tabulate import tabulate
 
   class OrgFormatter(IPython.core.formatters.BaseFormatter):
       def __call__(self, obj):
           try:
               return tabulate(obj, headers='keys',
-                              tablefmt='orgtbl', showindex='always')
+                              tablefmt='orgtbl', showindex='never')
           except:
               return None
 
@@ -32,12 +34,44 @@
 
 * Example request
 #+BEGIN_SRC jupyter-python :display org
-  result = %sql select * from actor
-  dataframe = result.head(10)
-  dataframe
+  result = %sql select * from pg_catalog.pg_tables
+  result
 #+END_SRC
+
+#+RESULTS:
+: UsageError: Line magic function `%sql` not found.
+
+* Load jupyter
+#+NAME: load-jupyter
+#+BEGIN_SRC emacs-lisp
+  (use-package jupyter
+    :demand t
+    :config
+    (org-babel-do-load-languages
+     'org-babel-load-languages
+     '((emacs-lisp . t)
+       (python . t)
+       (jupyter . t)))
+
+    (setq org-babel-default-header-args:jupyter-python
+          '((:async . "yes")
+            (:session . "jupy")
+            (:kernel . "python3")
+            (:display . "text/plain")
+            (:noweb . "yes")))
+
+    :general
+    (:keymaps 'jupyter-repl-mode-map
+     :states '(normal insert)
+     "<up>" 'jupyter-repl-history-previous
+     "<down>" 'jupyter-repl-history-next
+     "RET" 'jupyter-repl-ret))
+#+END_SRC
+
+#+RESULTS: load-jupyter
+: #s(hash-table size 65 test eql rehash-size 1.5 rehash-threshold 0.8125 data (:use-package (23728 40527 706300 918000) :init (23728 40527 705808 716000) :config (23728 40527 705610 930000) :config-secs (0 0 10428 563000) :init-secs (0 0 10785 76000) :use-package-secs (0 0 831142 866000)))
 
 * COMMENT Local variables
 # Local variables:
-# eval: (progn (org-sbe init) (org-sbe config-format))
+# eval: (progn (org-sbe load-jupyter) (org-sbe init) (org-sbe config-format))
 # End:
